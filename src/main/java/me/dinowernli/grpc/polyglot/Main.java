@@ -59,11 +59,14 @@ public class Main {
     try(Output commandLineOutput = Output.forConfiguration(config.getOutputConfig())) {
       switch (command) {
         case CommandLineArgs.LIST_SERVICES_COMMAND:
-          FileDescriptorSet fileDescriptorSet = getFileDescriptorSet(config.getProtoConfig());
           ServiceList.listServices(
               commandLineOutput,
-              fileDescriptorSet, config.getProtoConfig().getProtoDiscoveryRoot(),
-              arguments.serviceFilter(), arguments.methodFilter(), arguments.withMessage());
+              config.getProtoConfig(),
+              arguments.endpoint(),
+              arguments.serviceFilter(),
+              arguments.methodFilter(),
+              arguments.withMessage(),
+              config.getCallConfig());
           break;
 
         case CommandLineArgs.CALL_COMMAND:

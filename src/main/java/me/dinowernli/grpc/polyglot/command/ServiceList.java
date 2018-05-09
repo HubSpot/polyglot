@@ -5,27 +5,75 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Joiner;
+import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
+import com.google.common.net.HostAndPort;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.Descriptors.ServiceDescriptor;
 
+import io.grpc.Channel;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import me.dinowernli.grpc.polyglot.grpc.ChannelFactory;
+import me.dinowernli.grpc.polyglot.grpc.ServerReflectionClient;
 import me.dinowernli.grpc.polyglot.io.Output;
+import me.dinowernli.grpc.polyglot.oauth2.OauthCredentialsFactory;
+import me.dinowernli.grpc.polyglot.protobuf.ProtocInvoker;
 import me.dinowernli.grpc.polyglot.protobuf.ServiceResolver;
+import polyglot.ConfigProto.CallConfiguration;
+import polyglot.ConfigProto.ProtoConfiguration;
 
 /** Utility to list the services, methods and message definitions for the known GRPC end-points */
 public class ServiceList {
+  private static final Logger logger = LoggerFactory.getLogger(ServiceCall.class);
 
   /** Lists the GRPC services - filtered by service name (contains) or method name (contains) */
   public static void listServices(
       Output output,
-      FileDescriptorSet fileDescriptorSet,
-      String protoDiscoveryRoot,
+      ProtoConfiguration protoConfig,
+      Optional<String> endpoint,
       Optional<String> serviceFilter,
       Optional<String> methodFilter,
-      Optional<Boolean> withMessage) {
+      Optional<Boolean> withMessage,
+      CallConfiguration callConfig) {
+    HostAndPort hostAndPort = HostAndPort.fromString(endpoint.get());
+    ChannelFactory channelFactory = ChannelFactory.create(callConfig);
+
+    logger.info("Creating channel to: " + hostAndPort.toString());
+    Channel channel;
+    if (callConfig.hasOauthConfig()) {
+      channel = channelFactory.createChannelWithCredentials(
+          hostAndPort, new OauthCredentialsFactory(callConfig.getOauthConfig()).getCredentials());
+    } else {
+      channel = channelFactory.createChannel(hostAndPort);
+    }
+
+    // Fetch the appropriate file descriptors for the service.
+    final FileDescriptorSet fileDescriptorSet;
+    Optional<FileDescriptorSet> reflectionDescriptors = Optional.empty();
+    if (protoConfig.getUseReflection()) {
+      reflectionDescriptors =
+          resolveServiceByReflection(channel);
+    }
+
+    if (reflectionDescriptors.isPresent()) {
+      logger.info("Using proto descriptors fetched by reflection");
+      fileDescriptorSet = reflectionDescriptors.get();
+    } else {
+      try {
+        fileDescriptorSet = ProtocInvoker.forConfig(protoConfig).invoke();
+        logger.info("Using proto descriptors obtained from protoc");
+      } catch (Throwable t) {
+        throw new RuntimeException("Unable to resolve service by invoking protoc", t);
+      }
+    }
 
     ServiceResolver serviceResolver = ServiceResolver.fromFileDescriptorSet(fileDescriptorSet);
 
@@ -38,7 +86,7 @@ public class ServiceList {
           || descriptor.getFullName().toLowerCase().contains(serviceFilter.get().toLowerCase());
 
       if (matchingDescriptor) {
-        listMethods(output, protoDiscoveryRoot, descriptor, methodFilter, withMessage);
+        listMethods(output, protoConfig.getProtoDiscoveryRoot(), descriptor, methodFilter, withMessage);
       }
     }
   }
@@ -112,5 +160,45 @@ public class ServiceList {
     } else {
       return fieldPrefix + ": " + descriptor.getJavaType();
     }
+  }
+
+  /**
+   * Returns a {@link FileDescriptorSet} describing the supplied service if the remote server
+   * advertizes it by reflection. Returns an empty optional if the remote server doesn't support
+   * reflection. Throws a NOT_FOUND exception if we determine that the remote server does not
+   * support the requested service (but *does* support the reflection service).
+   */
+  private static Optional<FileDescriptorSet> resolveServiceByReflection(Channel channel) {
+    ServerReflectionClient serverReflectionClient = ServerReflectionClient.create(channel);
+    ImmutableList<String> services;
+    try {
+      services = serverReflectionClient.listServices().get();
+    } catch (Throwable t) {
+      // Listing services failed, try and provide an explanation.
+      Throwable root = Throwables.getRootCause(t);
+      if (root instanceof StatusRuntimeException) {
+        if (((StatusRuntimeException) root).getStatus().getCode() == Status.Code.UNIMPLEMENTED) {
+          logger.warn("Could not list services because the remote host does not support " +
+              "reflection. To disable resolving services by reflection, either pass the flag " +
+              "--use_reflection=false or disable reflection in your config file.");
+        }
+      }
+
+      // In any case, return an empty optional to indicate that this failed.
+      return Optional.empty();
+    }
+
+    FileDescriptorSet.Builder builder = FileDescriptorSet.newBuilder();
+    for (String serviceName : services) {
+      try {
+        FileDescriptorSet serviceFileDescriptors = serverReflectionClient.lookupService(serviceName).get();
+        builder.addAllFile(serviceFileDescriptors.getFileList());
+      } catch (Throwable t) {
+        logger.warn("Unable to lookup service by reflection: " + serviceName, t);
+        return Optional.empty();
+      }
+    }
+
+    return Optional.of(builder.build());
   }
 }
