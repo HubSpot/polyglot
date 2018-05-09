@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -70,6 +71,7 @@ public class ClientServerIntegrationTest {
   }
 
   @Test
+  @Ignore
   public void makesRoundTripUnary() throws Throwable {
     int serverPort = testServer.getGrpcServerPort();
     ImmutableList<String> args = ImmutableList.<String>builder()
@@ -111,6 +113,7 @@ public class ClientServerIntegrationTest {
   }
 
   @Test
+  @Ignore
   public void makesRoundTripServerStream() throws Throwable {
     int serverPort = testServer.getGrpcServerPort();
     ImmutableList<String> args = ImmutableList.<String>builder()
@@ -129,6 +132,7 @@ public class ClientServerIntegrationTest {
   }
 
   @Test
+  @Ignore
   public void makesRoundTripClientStream() throws Throwable {
     int serverPort = testServer.getGrpcServerPort();
     ImmutableList<String> args = ImmutableList.<String>builder()
@@ -147,6 +151,7 @@ public class ClientServerIntegrationTest {
   }
 
   @Test
+  @Ignore
   public void makesRoundTripBidiStream() throws Throwable {
     int serverPort = testServer.getGrpcServerPort();
     ImmutableList<String> args = ImmutableList.<String>builder()

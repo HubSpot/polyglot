@@ -16,6 +16,7 @@
     <project.build.targetJdk>1.8</project.build.targetJdk>
 
     <basepom.check.skip-checkstyle>true</basepom.check.skip-checkstyle>
+    <basepom.check.skip-findbugs>true</basepom.check.skip-findbugs>
 
     <dep.protobuf-java.version>3.5.1</dep.protobuf-java.version>
     <dep.protoc.version>3.5.1-1</dep.protoc.version>
@@ -94,6 +95,11 @@
         <artifactId>truth</artifactId>
         <version>0.28</version>
       </dependency>
+      <dependency>
+        <groupId>com.google.errorprone</groupId>
+        <artifactId>error_prone_annotations</artifactId>
+        <version>2.1.2</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -109,6 +115,10 @@
     <dependency>
       <groupId>args4j</groupId>
       <artifactId>args4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
     </dependency>
     <dependency>
       <groupId>io.grpc</groupId>
