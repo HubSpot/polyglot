@@ -6,7 +6,7 @@ option java_outer_classname = "TestProto";
 
 import "google/protobuf/any.proto";
 import "google/protobuf/duration.proto";
-import "src/main/proto/testing/foo/foo.proto";
+import "testing/foo/foo.proto";
 
 message TestRequest {
   string message = 1;

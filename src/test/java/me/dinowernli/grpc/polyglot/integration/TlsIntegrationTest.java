@@ -1,33 +1,33 @@
 package me.dinowernli.grpc.polyglot.integration;
 
+import static com.google.common.truth.Truth.assertThat;
+import static me.dinowernli.grpc.polyglot.testing.TestUtils.makeArgument;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
-import me.dinowernli.grpc.polyglot.io.MessageWriter;
-import me.dinowernli.grpc.polyglot.testing.TestServer;
-import me.dinowernli.grpc.polyglot.testing.TestUtils;
-import me.dinowernli.junit.TestClass;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+
+import me.dinowernli.grpc.polyglot.io.MessageWriter;
+import me.dinowernli.grpc.polyglot.testing.TestServer;
+import me.dinowernli.grpc.polyglot.testing.TestUtils;
 import polyglot.test.TestProto.TestRequest;
 import polyglot.test.TestProto.TestResponse;
-
-import static com.google.common.truth.Truth.assertThat;
-import static me.dinowernli.grpc.polyglot.testing.TestUtils.makeArgument;
 
 /**
  * An integration test suite which tests Polyglot's ability to connect to servers using TLS.
  */
-@TestClass
 public class TlsIntegrationTest {
   private static final String TEST_UNARY_METHOD = "polyglot.test.TestService/TestMethod";
 

@@ -1,23 +1,24 @@
 package me.dinowernli.grpc.polyglot.testing;
 
-import com.google.common.base.Throwables;
-import com.google.protobuf.Any;
-import com.google.protobuf.Duration;
-import io.grpc.Server;
-import io.grpc.netty.GrpcSslContexts;
-import io.grpc.netty.NettyServerBuilder;
-import io.grpc.protobuf.services.ProtoReflectionService;
-import io.netty.handler.ssl.ClientAuth;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.SslProvider;
-import polyglot.test.TestProto.TestResponse;
-import polyglot.test.TestProto.TunnelMessage;
-import polyglot.test.TestServiceGrpc.TestServiceImplBase;
-
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Random;
+
+import com.google.common.base.Throwables;
+import com.google.protobuf.Any;
+import com.google.protobuf.Duration;
+
+import io.grpc.Server;
+import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
+import io.grpc.netty.shaded.io.netty.handler.ssl.ClientAuth;
+import io.grpc.netty.shaded.io.netty.handler.ssl.SslContext;
+import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
+import io.grpc.netty.shaded.io.netty.handler.ssl.SslProvider;
+import io.grpc.protobuf.services.ProtoReflectionService;
+import polyglot.test.TestProto.TestResponse;
+import polyglot.test.TestProto.TunnelMessage;
+import polyglot.test.TestServiceGrpc.TestServiceImplBase;
 
 /**
  * Holds a real grpc server for use in tests. The server returns canned responses for a fixed set of

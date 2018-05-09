@@ -10,7 +10,6 @@ import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.util.JsonFormat;
 import com.google.protobuf.util.JsonFormat.TypeRegistry;
-import me.dinowernli.junit.TestClass;
 import me.dinowernli.grpc.polyglot.io.testing.TestData;
 import me.dinowernli.grpc.polyglot.testing.TestUtils;
 import org.junit.Test;
@@ -21,7 +20,6 @@ import polyglot.test.TestProto.TunnelMessage;
 import static com.google.common.truth.Truth.assertThat;
 
 /** Unit tests for {@link MessageReader}. */
-@TestClass
 public class MessageReaderTest {
   private static final String SOURCE = "TEST_SOURCE";
   private static final Descriptor DESCRIPTOR = TestRequest.getDescriptor();

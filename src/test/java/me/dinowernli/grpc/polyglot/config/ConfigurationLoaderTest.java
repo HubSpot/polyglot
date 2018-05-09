@@ -1,11 +1,11 @@
 package me.dinowernli.grpc.polyglot.config;
 
+import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.when;
+
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMultimap;
-import me.dinowernli.junit.TestClass;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -14,16 +14,16 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMultimap;
+
 import polyglot.ConfigProto.CallConfiguration;
 import polyglot.ConfigProto.Configuration;
 import polyglot.ConfigProto.ConfigurationSet;
 import polyglot.ConfigProto.OutputConfiguration.Destination;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.when;
-
 /** Unit tests for {@link ConfigurationLoader}. */
-@TestClass
 public class ConfigurationLoaderTest {
   @Rule public TemporaryFolder tempDirectory = new TemporaryFolder();
   @Rule public MockitoRule mockitoJunitRule = MockitoJUnit.rule();

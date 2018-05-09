@@ -7,7 +7,6 @@ import com.google.protobuf.Any;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
 import me.dinowernli.grpc.polyglot.protobuf.WellKnownTypes;
 import me.dinowernli.grpc.polyglot.testing.RecordingOutput;
-import me.dinowernli.junit.TestClass;
 import org.junit.Before;
 import org.junit.Test;
 import polyglot.test.TestProto;
@@ -16,7 +15,6 @@ import polyglot.test.foo.FooProto;
 import static com.google.common.truth.Truth.assertThat;
 
 /** Unit tests for {@link ServiceList}. */
-@TestClass
 public class ServiceListTest {
   private static FileDescriptorSet PROTO_FILE_DESCRIPTORS = FileDescriptorSet.newBuilder()
       .addFile(TestProto.getDescriptor().toProto())

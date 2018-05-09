@@ -2,24 +2,19 @@ package me.dinowernli.grpc.polyglot.config;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.common.collect.ImmutableMultimap;
-import me.dinowernli.junit.TestClass;
-
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import com.google.common.collect.ImmutableList;
 import org.junit.rules.TemporaryFolder;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMultimap;
+
 /** Unit tests for {@link CommandLineArgs}. */
-@TestClass
 public class CommandLineArgsTest {
   @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
   private Path tempFile1;
