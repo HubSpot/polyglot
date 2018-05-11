@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
@@ -75,6 +76,25 @@ public class ServiceList {
       }
     }
 
+    listServices(
+        output,
+        fileDescriptorSet,
+        protoConfig.getProtoDiscoveryRoot(),
+        serviceFilter,
+        methodFilter,
+        withMessage);
+  }
+
+  /** Lists the GRPC services - filtered by service name (contains) or method name (contains) */
+  @VisibleForTesting
+  static void listServices(
+      Output output,
+      FileDescriptorSet fileDescriptorSet,
+      String protoDiscoveryRoot,
+      Optional<String> serviceFilter,
+      Optional<String> methodFilter,
+      Optional<Boolean> withMessage) {
+
     ServiceResolver serviceResolver = ServiceResolver.fromFileDescriptorSet(fileDescriptorSet);
 
     // Add white-space before the rendered output
@@ -83,10 +103,10 @@ public class ServiceList {
     for (ServiceDescriptor descriptor : serviceResolver.listServices()) {
       boolean matchingDescriptor =
           !serviceFilter.isPresent()
-          || descriptor.getFullName().toLowerCase().contains(serviceFilter.get().toLowerCase());
+              || descriptor.getFullName().toLowerCase().contains(serviceFilter.get().toLowerCase());
 
       if (matchingDescriptor) {
-        listMethods(output, protoConfig.getProtoDiscoveryRoot(), descriptor, methodFilter, withMessage);
+        listMethods(output, protoDiscoveryRoot, descriptor, methodFilter, withMessage);
       }
     }
   }
