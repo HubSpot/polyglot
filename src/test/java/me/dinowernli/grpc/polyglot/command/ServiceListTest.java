@@ -5,6 +5,8 @@ import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.Any;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
+import com.google.protobuf.ExtensionRegistry;
+
 import me.dinowernli.grpc.polyglot.protobuf.WellKnownTypes;
 import me.dinowernli.grpc.polyglot.testing.RecordingOutput;
 import org.junit.Before;
@@ -38,6 +40,7 @@ public class ServiceListTest {
     ServiceList.listServices(
         recordingOutput,
         PROTO_FILE_DESCRIPTORS,
+        ExtensionRegistry.getEmptyRegistry(),
         "",
         Optional.empty(),
         Optional.empty(),
@@ -52,6 +55,7 @@ public class ServiceListTest {
     ServiceList.listServices(
         recordingOutput,
         PROTO_FILE_DESCRIPTORS,
+        ExtensionRegistry.getEmptyRegistry(),
         "",
         Optional.of("TestService"),
         Optional.empty(),
@@ -66,6 +70,7 @@ public class ServiceListTest {
     ServiceList.listServices(
         recordingOutput,
         PROTO_FILE_DESCRIPTORS,
+        ExtensionRegistry.getEmptyRegistry(),
         "",
         Optional.of("TestService"),
         Optional.of("TestMethodStream"),
@@ -83,6 +88,7 @@ public class ServiceListTest {
     ServiceList.listServices(
         recordingOutput,
         PROTO_FILE_DESCRIPTORS,
+        ExtensionRegistry.getEmptyRegistry(),
         "",
         Optional.of("TestService"),
         Optional.of("TestMethodStream"),

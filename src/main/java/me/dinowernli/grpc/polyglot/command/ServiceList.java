@@ -18,6 +18,7 @@ import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.Descriptors.ServiceDescriptor;
+import com.google.protobuf.ExtensionRegistry;
 
 import io.grpc.Channel;
 import io.grpc.Status;
@@ -39,6 +40,7 @@ public class ServiceList {
   public static void listServices(
       Output output,
       ProtoConfiguration protoConfig,
+      ExtensionRegistry extensionRegistry,
       Optional<String> endpoint,
       Optional<String> serviceFilter,
       Optional<String> methodFilter,
@@ -79,6 +81,7 @@ public class ServiceList {
     listServices(
         output,
         fileDescriptorSet,
+        extensionRegistry,
         protoConfig.getProtoDiscoveryRoot(),
         serviceFilter,
         methodFilter,
@@ -90,12 +93,13 @@ public class ServiceList {
   static void listServices(
       Output output,
       FileDescriptorSet fileDescriptorSet,
+      ExtensionRegistry extensionRegistry,
       String protoDiscoveryRoot,
       Optional<String> serviceFilter,
       Optional<String> methodFilter,
       Optional<Boolean> withMessage) {
 
-    ServiceResolver serviceResolver = ServiceResolver.fromFileDescriptorSet(fileDescriptorSet);
+    ServiceResolver serviceResolver = ServiceResolver.fromFileDescriptorSet(fileDescriptorSet, extensionRegistry);
 
     // Add white-space before the rendered output
     output.newLine();

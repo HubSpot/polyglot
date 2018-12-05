@@ -10,6 +10,8 @@ import com.google.protobuf.Descriptors.DescriptorValidationException;
 import com.google.protobuf.Descriptors.FileDescriptor;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.Descriptors.ServiceDescriptor;
+import com.google.protobuf.ExtensionRegistry;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +25,9 @@ public class ServiceResolver {
   private final ImmutableList<FileDescriptor> fileDescriptors;
 
   /** Creates a resolver which searches the supplied {@link FileDescriptorSet}. */
-  public static ServiceResolver fromFileDescriptorSet(FileDescriptorSet descriptorSet) {
+  public static ServiceResolver fromFileDescriptorSet(
+      FileDescriptorSet descriptorSet,
+      ExtensionRegistry extensionRegistry) {
     ImmutableMap<String, FileDescriptorProto> descriptorProtoIndex =
         computeDescriptorProtoIndex(descriptorSet);
     Map<String, FileDescriptor> descriptorCache = new HashMap<>();
@@ -31,7 +35,7 @@ public class ServiceResolver {
     ImmutableList.Builder<FileDescriptor> result = ImmutableList.builder();
     for (FileDescriptorProto descriptorProto : descriptorSet.getFileList()) {
       try {
-        result.add(descriptorFromProto(descriptorProto, descriptorProtoIndex, descriptorCache));
+        result.add(descriptorFromProto(descriptorProto, descriptorProtoIndex, descriptorCache, extensionRegistry));
       } catch (DescriptorValidationException e) {
         logger.warn("Skipped descriptor " + descriptorProto.getName() + " due to error", e);
         continue;
@@ -118,7 +122,8 @@ public class ServiceResolver {
   private static FileDescriptor descriptorFromProto(
       FileDescriptorProto descriptorProto,
       ImmutableMap<String, FileDescriptorProto> descriptorProtoIndex,
-      Map<String, FileDescriptor> descriptorCache) throws DescriptorValidationException {
+      Map<String, FileDescriptor> descriptorCache,
+      ExtensionRegistry extensionRegistry) throws DescriptorValidationException {
     // First, check the cache.
     String descritorName = descriptorProto.getName();
     if (descriptorCache.containsKey(descritorName)) {
@@ -132,11 +137,13 @@ public class ServiceResolver {
         throw new IllegalArgumentException("Could not find dependency: " + dependencyName);
       }
       FileDescriptorProto dependencyProto = descriptorProtoIndex.get(dependencyName);
-      dependencies.add(descriptorFromProto(dependencyProto, descriptorProtoIndex, descriptorCache));
+      dependencies.add(descriptorFromProto(dependencyProto, descriptorProtoIndex, descriptorCache, extensionRegistry));
     }
 
     // Finally, construct the actual descriptor.
     FileDescriptor[] empty = new FileDescriptor[0];
-    return FileDescriptor.buildFrom(descriptorProto, dependencies.build().toArray(empty));
+    FileDescriptor fileDescriptor = FileDescriptor.buildFrom(descriptorProto, dependencies.build().toArray(empty));
+    FileDescriptor.internalUpdateFileDescriptor(fileDescriptor, extensionRegistry);
+    return fileDescriptor;
   }
 }

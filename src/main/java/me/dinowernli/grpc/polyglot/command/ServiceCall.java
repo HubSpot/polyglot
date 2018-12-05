@@ -7,6 +7,7 @@ import com.google.common.net.HostAndPort;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.DynamicMessage;
+import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.util.JsonFormat.TypeRegistry;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
@@ -43,6 +44,7 @@ public class ServiceCall {
   public static void callEndpoint(
       Output output,
       ProtoConfiguration protoConfig,
+      ExtensionRegistry extensionRegistry,
       Optional<String> endpoint,
       Optional<String> fullMethod,
       Optional<Path> protoDiscoveryRoot,
@@ -90,7 +92,7 @@ public class ServiceCall {
     }
 
     // Set up the dynamic client and make the call.
-    ServiceResolver serviceResolver = ServiceResolver.fromFileDescriptorSet(fileDescriptorSet);
+    ServiceResolver serviceResolver = ServiceResolver.fromFileDescriptorSet(fileDescriptorSet, extensionRegistry);
     MethodDescriptor methodDescriptor = serviceResolver.resolveServiceMethod(grpcMethodName);
 
     logger.info("Creating dynamic grpc client");
