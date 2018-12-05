@@ -1,6 +1,8 @@
 package me.dinowernli.grpc.polyglot.protobuf;
 
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
+import com.google.protobuf.ExtensionRegistry;
+
 import org.junit.Before;
 import org.junit.Test;
 import polyglot.test.TestProto;
@@ -19,7 +21,9 @@ public class ServiceResolverTest {
 
   @Before
   public void setUp() {
-    serviceResolver = ServiceResolver.fromFileDescriptorSet(PROTO_FILE_DESCRIPTORS);
+    serviceResolver = ServiceResolver.fromFileDescriptorSet(
+        PROTO_FILE_DESCRIPTORS,
+        ExtensionRegistry.getEmptyRegistry());
   }
 
   @Test(expected = IllegalArgumentException.class)

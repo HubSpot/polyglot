@@ -3,6 +3,8 @@ package me.dinowernli.grpc.polyglot;
 import java.util.logging.LogManager;
 
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
+import com.google.protobuf.ExtensionRegistry;
+
 import me.dinowernli.grpc.polyglot.command.ServiceCall;
 import me.dinowernli.grpc.polyglot.command.ServiceList;
 import me.dinowernli.grpc.polyglot.config.CommandLineArgs;
@@ -62,6 +64,7 @@ public class Main {
           ServiceList.listServices(
               commandLineOutput,
               config.getProtoConfig(),
+              ExtensionRegistry.getEmptyRegistry(),
               arguments.endpoint(),
               arguments.serviceFilter(),
               arguments.methodFilter(),
@@ -73,6 +76,7 @@ public class Main {
           ServiceCall.callEndpoint(
               commandLineOutput,
               config.getProtoConfig(),
+              ExtensionRegistry.getEmptyRegistry(),
               arguments.endpoint(),
               arguments.fullMethod(),
               arguments.protoDiscoveryRoot(),

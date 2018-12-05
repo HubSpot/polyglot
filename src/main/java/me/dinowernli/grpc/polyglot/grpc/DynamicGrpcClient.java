@@ -16,14 +16,17 @@ import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
 import io.grpc.MethodDescriptor.MethodType;
+import io.grpc.protobuf.ProtoMethodDescriptorSupplier;
 import io.grpc.stub.ClientCalls;
 import io.grpc.stub.StreamObserver;
 import me.dinowernli.grpc.polyglot.protobuf.DynamicMessageMarshaller;
+import me.dinowernli.grpc.polyglot.protobuf.LiteralProtoMethodDescriptorSupplier;
 
 /** A grpc client which operates on dynamic messages. */
 public class DynamicGrpcClient {
   private static final Logger logger = LoggerFactory.getLogger(DynamicGrpcClient.class);
   private final MethodDescriptor protoMethodDescriptor;
+  private final ProtoMethodDescriptorSupplier protoMethodDescriptorSupplier;
   private final Channel channel;
 
   /** Creates a client for the supplied method, talking to the supplied endpoint. */
@@ -34,6 +37,8 @@ public class DynamicGrpcClient {
   @VisibleForTesting
   DynamicGrpcClient(MethodDescriptor protoMethodDescriptor, Channel channel) {
     this.protoMethodDescriptor = protoMethodDescriptor;
+    this.protoMethodDescriptorSupplier =
+        LiteralProtoMethodDescriptorSupplier.forMethodDescriptor(protoMethodDescriptor);
     this.channel = channel;
   }
 
@@ -149,11 +154,13 @@ public class DynamicGrpcClient {
   }
 
   private io.grpc.MethodDescriptor<DynamicMessage, DynamicMessage> createGrpcMethodDescriptor() {
-    return io.grpc.MethodDescriptor.<DynamicMessage, DynamicMessage>create(
-        getMethodType(),
-        getFullMethodName(),
-        new DynamicMessageMarshaller(protoMethodDescriptor.getInputType()),
-        new DynamicMessageMarshaller(protoMethodDescriptor.getOutputType()));
+    return io.grpc.MethodDescriptor.<DynamicMessage, DynamicMessage>newBuilder()
+        .setType(getMethodType())
+        .setFullMethodName(getFullMethodName())
+        .setRequestMarshaller(new DynamicMessageMarshaller(protoMethodDescriptor.getInputType()))
+        .setResponseMarshaller(new DynamicMessageMarshaller(protoMethodDescriptor.getOutputType()))
+        .setSchemaDescriptor(protoMethodDescriptorSupplier)
+        .build();
   }
 
   private String getFullMethodName() {
